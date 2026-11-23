@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Panel del Dueño — Minisúper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #FDFBF7;
+        --surface: #FFFFFF;
+        --surface-2: #F5F0E6;
+        --ink: #1C241E;
+        --ink-soft: #5A665C;
+        --line: #E7DFCE;
+        --green: #14532D;
+        --green-soft: #E3EFE5;
+        --green-mid: #2E7D4F;
+        --orange: #EA580C;
+        --orange-soft: #FDEEE3;
+        --red: #B3261E;
+        --red-soft: #FBEAE8;
+        --amber: #9A6B00;
+        --amber-soft: #FBF3DC;
+        --shadow: 0 1px 2px rgba(20, 83, 45, .06), 0 8px 24px -12px rgba(20, 83, 45, .18);
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101511;
+          --surface: #181E19;
+          --surface-2: #1F2720;
+          --ink: #F1EFE6;
+          --ink-soft: #A7B3A8;
+          --line: #2C362D;
+          --green: #7FCB9B;
+          --green-soft: #1D2F23;
+          --green-mid: #4CAF7D;
+          --orange: #F5823F;
+          --orange-soft: #33241A;
+          --red: #F08A84;
+          --red-soft: #33201E;
+          --amber: #E3C46B;
+          --amber-soft: #2E2A18;
+          --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+          color-scheme: dark;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Archivo", system-ui, -apple-system, sans-serif;
+        line-height: 1.45;
+      }
+      button { min-height: 2.25rem; font-family: inherit; cursor: pointer; }
+      .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 18px 56px; }
+
+      /* ---------- Encabezado ---------- */
+      .topbar {
+        display: flex; flex-wrap: wrap; gap: 14px;
+        align-items: flex-start; justify-content: space-between;
+        padding-bottom: 18px; border-bottom: 2px solid var(--green);
+      }
+      .brand h1 {
+        margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem);
+        font-weight: 800; letter-spacing: -.02em; line-height: 1.1;
+      }
+      .brand h1 span { color: var(--green); }
+      .brand p { margin: 4px 0 0; color: var(--ink-soft); font-size: .95rem; }
+      .demo-flag {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--orange); color: #FFF7ED;
+        font-weight: 700; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase;
+        padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+      }
+      .demo-flag::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%;
+        background: #FFF7ED;
+      }
+      .demo-note {
+        margin: 16px 0 0; padding: 12px 16px;
+        background: var(--orange-soft); border: 1px dashed var(--orange);
+        border-radius: 10px; font-size: .92rem;
+      }
+      .demo-note strong { color: var(--orange); }
+
+      /* ---------- Pestañas ---------- */
+      .tabs {
+        display: flex; gap: 6px; margin: 22px 0 20px;
+        background: var(--surface-2); border: 1px solid var(--line);
+        padding: 5px; border-radius: 12px; width: fit-content; max-width: 100%;
+      }
+      .tabs button {
+        border: 0; background: transparent; color: var(--ink-soft);
+        font-weight: 600; font-size: .95rem; padding: 8px 22px; border-radius: 8px;
+        transition: background .15s ease, color .15s ease;
+      }
+      .tabs button[aria-selected="true"] {
+        background: var(--green); color: #F2F8F2;
+        box-shadow: 0 2px 8px -2px rgba(20,83,45,.45);
+      }
+      @media (prefers-color-scheme: dark) {
+        .tabs button[aria-selected="true"] { color: #0E2416; }
+      }
+      .period-label { color: var(--ink-soft); font-size: .9rem; margin: -8px 0 18px; }
+
+      /* ---------- KPIs ---------- */
+      .kpis {
+        display: grid; gap: 14px;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 420px) { .kpis { grid-template-columns: 1fr 1fr; gap: 10px; } }
+      .kpi {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+      }
+      .kpi .k-head {
+        display: flex; align-items: center; gap: 8px;
+        color: var(--ink-soft); font-size: .82rem; font-weight: 600;
+        letter-spacing: .05em; text-transform: uppercase;
+      }
+      .kpi .k-head svg { flex: none; }
+      .kpi .k-value {
+        margin-top: 8px; font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: clamp(1.45rem, 3.4vw, 1.9rem); font-weight: 600; letter-spacing: -.01em;
+      }
+      .kpi .k-delta { margin-top: 6px; font-size: .85rem; font-weight: 600; }
+      .kpi .k-delta small { color: var(--ink-soft); font-weight: 500; }
+      .up { color: var(--green-mid); }
+      .down { color: var(--red); }
+      .kpi.alert-kpi { border-color: var(--orange); }
+      .kpi.alert-kpi .k-value { color: var(--orange); }
+
+      /* ---------- Secciones ---------- */
+      .grid-2 {
+        display: grid; gap: 14px; margin-top: 14px;
+        grid-template-columns: 1.6fr 1fr;
+      }
+      .grid-2b {
+        display: grid; gap: 14px; margin-top: 14px;
+        grid-template-columns: 1fr 1fr;
+      }
+      @media (max-width: 860px) {
+        .grid-2, .grid-2b { grid-template-columns: 1fr; }
+      }
+      .card {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: 14px; padding: 20px; box-shadow: var(--shadow);
+      }
+      .card h2 {
+        margin: 0 0 4px; font-size: 1.08rem; font-weight: 700; letter-spacing: -.01em;
+        display: flex; align-items: center; gap: 9px;
+      }
+      .card h2 svg { flex: none; color: var(--green); }
+      .card .sub { margin: 0 0 16px; color: var(--ink-soft); font-size: .88rem; }
+      .card.wide { margin-top: 14px; }
+
+      .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 10px; font-size: .88rem; font-weight: 600; }
+      .legend span { display: inline-flex; align-items: center; gap: 7px; }
+      .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+      .sw-green { background: var(--green-mid); }
+      .sw-orange { background: var(--orange); }
+      .chart-box { width: 100%; }
+      .chart-box svg { width: 100%; height: auto; display: block; }
+      .chart-summary {
+        display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 14px;
+        padding-top: 14px; border-top: 1px solid var(--line); font-size: .92rem;
+      }
+      .chart-summary b { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+      .chart-summary .profit { color: var(--green); font-weight: 700; }
+
+      /* ---------- Listas ---------- */
+      .prod-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+      .prod-list li { display: grid; gap: 5px; }
+      .prod-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+      .prod-name { font-weight: 600; font-size: .95rem; }
+      .prod-name .rank {
+        display: inline-block; min-width: 22px; color: var(--orange);
+        font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
+      }
+      .prod-meta { color: var(--ink-soft); font-size: .83rem; }
+      .prod-amt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600; font-size: .95rem; white-space: nowrap; }
+      .bar { height: 7px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+      .bar i { display: block; height: 100%; background: var(--green-mid); border-radius: 99px; }
+
+      .fiado-list { list-style: none; margin: 0; padding: 0; }
+      .fiado-list li {
+        display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        padding: 11px 0; border-bottom: 1px solid var(--line);
+      }
+      .fiado-list li:last-child { border-bottom: 0; }
+      .fiado-who { font-weight: 600; font-size: .95rem; }
+      .fiado-when { color: var(--ink-soft); font-size: .83rem; }
+      .fiado-amt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600; white-space: nowrap; }
+      .fiado-total {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 14px; padding: 13px 15px; border-radius: 10px;
+        background: var(--orange-soft); font-weight: 700;
+      }
+      .fiado-total .amt { font-family: "IBM Plex Mono", ui-monospace, monospace; color: var(--orange); font-size: 1.1rem; }
+      .tag {
+        font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 99px; white-space: nowrap;
+      }
+      .tag-vencido { background: var(--red-soft); color: var(--red); }
+      .tag-semana { background: var(--amber-soft); color: var(--amber); }
+      .tag-reciente { background: var(--green-soft); color: var(--green); }
+
+      /* ---------- Alertas ---------- */
+      .alert-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+      .alert-filters button {
+        border: 1px solid var(--line); background: var(--surface-2); color: var(--ink-soft);
+        font-weight: 600; font-size: .87rem; padding: 7px 16px; border-radius: 99px;
+      }
+      .alert-filters button[aria-pressed="true"] {
+        background: var(--green); border-color: var(--green); color: #F2F8F2;
+      }
+      @media (prefers-color-scheme: dark) {
+        .alert-filters button[aria-pressed="true"] { color: #0E2416; }
+      }
+      .alert-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+      .alert-item {
+        display: flex; gap: 12px; align-items: flex-start;
+        padding: 13px 14px; border-radius: 10px; border: 1px solid var(--line);
+        background: var(--surface-2);
+      }
+      .alert-item .a-icon {
+        flex: none; width: 34px; height: 34px; border-radius: 9px;
+        display: grid; place-items: center;
+      }
+      .a-stock .a-icon { background: var(--red-soft); color: var(--red); }
+      .a-cad .a-icon { background: var(--amber-soft); color: var(--amber); }
+      .alert-item b { font-size: .95rem; }
+      .alert-item p { margin: 2px 0 0; color: var(--ink-soft); font-size: .86rem; }
+      .alert-item .a-badge { margin-left: auto; flex: none; }
+      .empty-msg { color: var(--ink-soft); font-size: .92rem; padding: 8px 0; }
+
+      footer {
+        margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line);
+        color: var(--ink-soft); font-size: .85rem;
+        display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: space-between;
+      }
+      .fade { animation: fadeIn .28s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) {
+        .fade { animation: none; }
+        * { transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <header class="topbar">
+        <div class="brand">
+          <h1>Minisúper <span>La Esquina</span></h1>
+          <p>Panel del dueño · Control de ventas, inventario y fiados</p>
+        </div>
+        <span class="demo-flag">Versión demo</span>
+      </header>
+
+      <p class="demo-note">
+        <strong>Datos de ejemplo:</strong> todas las cifras, productos, clientes y alertas de esta
+        pantalla son ficticios y sirven solo para mostrar cómo se vería el panel de tu negocio.
+      </p>
+
+      <div class="tabs" role="tablist" aria-label="Periodo">
+        <button role="tab" id="tab-hoy" aria-selected="true" data-period="hoy">Hoy</button>
+        <button role="tab" id="tab-semana" aria-selected="false" data-period="semana">Semana</button>
+        <button role="tab" id="tab-mes" aria-selected="false" data-period="mes">Mes</button>
+      </div>
+      <p class="period-label" id="periodLabel"></p>
+
+      <section class="kpis" id="kpis" aria-label="Indicadores principales"></section>
+
+      <div class="grid-2">
+        <section class="card" aria-labelledby="h-chart">
+          <h2 id="h-chart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 6v12"/></svg>
+            Ventas vs gastos
+          </h2>
+          <p class="sub" id="chartSub"></p>
+          <div class="legend">
+            <span><i class="swatch sw-green"></i> Ventas</span>
+            <span><i class="swatch sw-orange"></i> Gastos</span>
+          </div>
+          <div class="chart-box" id="chartBox"></div>
+          <div class="chart-summary" id="chartSummary"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-top">
+          <h2 id="h-top">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4"/><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4"/></svg>
+            Productos más vendidos
+          </h2>
+          <p class="sub" id="topSub"></p>
+          <ul class="prod-list" id="prodList"></ul>
+        </section>
+      </div>
+
+      <div class="grid-2b">
+        <section class="card" aria-labelledby="h-fiados">
+          <h2 id="h-fiados">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Fiados por cobrar
+          </h2>
+          <p class="sub">Cuentas abiertas de clientes de confianza. Datos de ejemplo.</p>
+          <ul class="fiado-list" id="fiadoList"></ul>
+          <div class="fiado-total">
+            <span>Total por cobrar</span>
+            <span class="amt" id="fiadoTotal"></span>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-alertas">
+          <h2 id="h-alertas">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            Alertas de inventario
+          </h2>
+          <p class="sub">Stock bajo y productos próximos a caducar.</p>
+          <div class="alert-filters" role="group" aria-label="Filtrar alertas">
+            <button data-filter="todas" aria-pressed="true">Todas</button>
+            <button data-filter="stock" aria-pressed="false">Stock bajo</button>
+            <button data-filter="caducidad" aria-pressed="false">Caducidad</button>
+          </div>
+          <ul class="alert-list" id="alertList"></ul>
+        </section>
+      </div>
+
+      <footer>
+        <span>Panel del dueño · Minisúper La Esquina</span>
+        <span>Todos los datos mostrados son de ejemplo (demo).</span>
+      </footer>
+    </div>
+
+    <script>
+      var money = function (n) {
+        return "$" + n.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      };
+      var money2 = function (n) {
+        return "$" + n.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      };
+
+      var DATA = {
+        hoy: {
+          label: "Hoy · Domingo 22 de noviembre de 2026",
+          chartSub: "Ventas y gastos por bloque de 2 horas, de 7:00 a 21:00.",
+          topSub: "Lo que más se movió hoy, ordenado por ingreso generado.",
+          kpis: [
+            { name: "Ventas del día", icon: "cash", value: 8940, fmt: "money", delta: 12.4, vs: "vs ayer" },
+            { name: "Pedidos", icon: "cart", value: 124, fmt: "num", delta: 8.1, vs: "vs ayer" },
+            { name: "Ticket promedio", icon: "ticket", value: 72.10, fmt: "money2", delta: 3.9, vs: "vs ayer" },
+            { name: "Merma", icon: "trash", value: 186, fmt: "money", delta: -14.2, vs: "vs ayer", invert: true }
+          ],
+          chart: {
+            labels: ["7–9", "9–11", "11–13", "13–15", "15–17", "17–19", "19–21"],
+            ventas: [550, 990, 1500, 1280, 1160, 1860, 1600],
+            gastos: [180, 240, 310, 260, 290, 380, 330]
+          },
+          top: [
+            { name: "Huevo blanco 1 kg", qty: 22, unit: "kg", amt: 1188 },
+            { name: "Coca-Cola 600 ml", qty: 48, unit: "pzas", amt: 960 },
+            { name: "Tortillas de maíz 1 kg", qty: 35, unit: "pzas", amt: 770 },
+            { name: "Leche entera 1 L", qty: 26, unit: "pzas", amt: 754 },
+            { name: "Pan dulce surtido", qty: 31, unit: "pzas", amt: 465 }
+          ]
+        },
+        semana: {
+          label: "Semana · Lunes 16 al domingo 22 de noviembre de 2026",
+          chartSub: "Ventas y gastos por día de la semana en curso.",
+          topSub: "Lo que más se movió en la semana, ordenado por ingreso generado.",
+          kpis: [
+            { name: "Ventas de la semana", icon: "cash", value: 41280, fmt: "money", delta: 6.8, vs: "vs semana pasada" },
+            { name: "Pedidos", icon: "cart", value: 587, fmt: "num", delta: 4.2, vs: "vs semana pasada" },
+            { name: "Ticket promedio", icon: "ticket", value: 70.32, fmt: "money2", delta: 2.5, vs: "vs semana pasada" },
+            { name: "Merma", icon: "trash", value: 1140, fmt: "money", delta: 9.6, vs: "vs semana pasada", invert: true }
+          ],
+          chart: {
+            labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+            ventas: [4320, 4680, 4950, 5210, 6340, 6840, 8940],
+            gastos: [1980, 2050, 2210, 2140, 2680, 1990, 3120]
+          },
+          top: [
+            { name: "Huevo blanco 1 kg", qty: 148, unit: "kg", amt: 7992 },
+            { name: "Coca-Cola 600 ml", qty: 312, unit: "pzas", amt: 6240 },
+            { name: "Leche entera 1 L", qty: 176, unit: "pzas", amt: 5104 },
+            { name: "Tortillas de maíz 1 kg", qty: 231, unit: "pzas", amt: 5082 },
+            { name: "Aceite vegetal 1 L", qty: 64, unit: "pzas", amt: 3776 }
+          ]
+        },
+        mes: {
+          label: "Mes · Noviembre de 2026 (al día 22)",
+          chartSub: "Ventas y gastos por semana del mes en curso.",
+          topSub: "Lo que más se movió en el mes, ordenado por ingreso generado.",
+          kpis: [
+            { name: "Ventas del mes", icon: "cash", value: 128450, fmt: "money", delta: 9.3, vs: "vs octubre" },
+            { name: "Pedidos", icon: "cart", value: 1842, fmt: "num", delta: 7.4, vs: "vs octubre" },
+            { name: "Ticket promedio", icon: "ticket", value: 69.73, fmt: "money2", delta: 1.8, vs: "vs octubre" },
+            { name: "Merma", icon: "trash", value: 3985, fmt: "money", delta: -5.1, vs: "vs octubre", invert: true }
+          ],
+          chart: {
+            labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4*"],
+            ventas: [38920, 40260, 41280, 7990],
+            gastos: [17450, 16980, 16170, 3350]
+          },
+          top: [
+            { name: "Huevo blanco 1 kg", qty: 462, unit: "kg", amt: 24948 },
+            { name: "Coca-Cola 600 ml", qty: 985, unit: "pzas", amt: 19700 },
+            { name: "Leche entera 1 L", qty: 545, unit: "pzas", amt: 15805 },
+            { name: "Tortillas de maíz 1 kg", qty: 718, unit: "pzas", amt: 15796 },
+            { name: "Frijol negro 1 kg", qty: 203, unit: "pzas", amt: 7714 }
+          ]
+        }
+      };
+
+      var FIADOS = [
+        { who: "Doña Carmen R.", when: "Desde hace 18 días", days: 18, amt: 1240, tag: "vencido", tagText: "Vencido" },
+        { who: "Don José M.", when: "Desde hace 12 días", days: 12, amt: 860, tag: "vencido", tagText: "Vencido" },
+        { who: "Familia Torres", when: "Desde hace 6 días", days: 6, amt: 1530, tag: "semana", tagText: "Esta semana" },
+        { who: "Sra. Lupita H.", when: "Desde hace 4 días", days: 4, amt: 475, tag: "semana", tagText: "Esta semana" },
+        { who: "Don Pedro A.", when: "Desde ayer", days: 1, amt: 320, tag: "reciente", tagText: "Reciente" },
+        { who: "Sra. Rosa V.", when: "Desde hoy", days: 0, amt: 210, tag: "reciente", tagText: "Reciente" }
+      ];
+
+      var ALERTAS = [
+        { type: "stock", title: "Aceite vegetal 1 L", detail: "Quedan 3 piezas · Se acaban en aprox. 1 día al ritmo actual.", badge: "Urgente", badgeClass: "tag-vencido" },
+        { type: "stock", title: "Huevo blanco", detail: "Quedan 4 kg en exhibición · El proveedor pasa el martes.", badge: "Stock bajo", badgeClass: "tag-vencido" },
+        { type: "stock", title: "Papel higiénico 4 rollos", detail: "Quedan 5 paquetes · Pedir en la próxima orden.", badge: "Stock bajo", badgeClass: "tag-semana" },
+        { type: "stock", title: "Detergente en polvo 1 kg", detail: "Quedan 6 piezas · Nivel mínimo: 10.", badge: "Stock bajo", badgeClass: "tag-semana" },
+        { type: "caducidad", title: "Yogur natural 1 kg", detail: "Caduca en 2 días · 8 piezas en refrigerador.", badge: "2 días", badgeClass: "tag-vencido" },
+        { type: "caducidad", title: "Jamón de pavo 250 g", detail: "Caduca en 4 días · 11 paquetes en vitrina.", badge: "4 días", badgeClass: "tag-semana" },
+        { type: "caducidad", title: "Leche entera 1 L (lote B)", detail: "Caduca en 6 días · 14 piezas, acomodar al frente.", badge: "6 días", badgeClass: "tag-semana" }
+      ];
+
+      var ICONS = {
+        cash: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+        cart: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        ticket: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>',
+        trash: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>',
+        box: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+        clock: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'
+      };
+
+      function fmtVal(k) {
+        if (k.fmt === "money") return money(k.value);
+        if (k.fmt === "money2") return money2(k.value);
+        return k.value.toLocaleString("es-MX");
+      }
+
+      function renderKpis(d) {
+        var html = "";
+        d.kpis.forEach(function (k) {
+          var good = k.invert ? k.delta < 0 : k.delta > 0;
+          var arrow = k.delta >= 0 ? "▲" : "▼";
+          var pct = Math.abs(k.delta).toFixed(1).replace(".", ",") + "%";
+          html += '<article class="kpi' + (k.name === "Merma" ? " alert-kpi" : "") + '">' +
+            '<div class="k-head">' + ICONS[k.icon] + "<span>" + k.name + "</span></div>" +
+            '<div class="k-value">' + fmtVal(k) + "</div>" +
+            '<div class="k-delta ' + (good ? "up" : "down") + '">' + arrow + " " + pct + " <small>" + k.vs + "</small></div>" +
+            "</article>";
+        });
+        document.getElementById("kpis").innerHTML = html;
+      }
+
+      function renderChart(d) {
+        var c = d.chart;
+        var W = 640, H = 300, padL = 52, padR = 10, padT = 14, padB = 34;
+        var plotW = W - padL - padR, plotH = H - padT - padB;
+        var max = 0;
+        c.ventas.concat(c.gastos).forEach(function (v) { if (v > max) max = v; });
+        max = Math.ceil(max / 1000) * 1000;
+        var n = c.labels.length;
+        var groupW = plotW / n;
+        var barW = Math.min(26, groupW * 0.32);
+        var s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Gráfica de barras de ventas contra gastos">';
+        // gridlines + y labels
+        for (var g = 0; g <= 4; g++) {
+          var val = max * g / 4;
+          var y = padT + plotH - (plotH * g / 4);
+          s += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="var(--line)" stroke-width="1"/>';
+          s += '<text x="' + (padL - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="var(--ink-soft)" font-family="IBM Plex Mono, monospace">$' + (val / 1000) + 'k</text>';
+        }
+        for (var i = 0; i < n; i++) {
+          var cx = padL + groupW * i + groupW / 2;
+          var hv = plotH * c.ventas[i] / max;
+          var hg = plotH * c.gastos[i] / max;
+          var yv = padT + plotH - hv, yg = padT + plotH - hg;
+          s += '<rect x="' + (cx - barW - 2) + '" y="' + yv + '" width="' + barW + '" height="' + hv + '" rx="3" fill="var(--green-mid)"><title>Ventas: ' + money(c.ventas[i]) + "</title></rect>";
+          s += '<rect x="' + (cx + 2) + '" y="' + yg + '" width="' + barW + '" height="' + hg + '" rx="3" fill="var(--orange)"><title>Gastos: ' + money(c.gastos[i]) + "</title></rect>";
+          s += '<text x="' + cx + '" y="' + (H - 12) + '" text-anchor="middle" font-size="11.5" fill="var(--ink-soft)">' + c.labels[i] + "</text>";
+        }
+        s += "</svg>";
+        document.getElementById("chartBox").innerHTML = s;
+        var tv = c.ventas.reduce(function (a, b) { return a + b; }, 0);
+        var tg = c.gastos.reduce(function (a, b) { return a + b; }, 0);
+        document.getElementById("chartSummary").innerHTML =
+          "<span>Ventas: <b>" + money(tv) + "</b></span>" +
+          "<span>Gastos: <b>" + money(tg) + "</b></span>" +
+          '<span class="profit">Utilidad bruta: ' + money(tv - tg) + "</span>";
+        document.getElementById("chartSub").textContent = d.chartSub;
+      }
+
+      function renderTop(d) {
+        var maxAmt = 0;
+        d.top.forEach(function (p) { if (p.amt > maxAmt) maxAmt = p.amt; });
+        var html = "";
+        d.top.forEach(function (p, i) {
+          var pct = Math.round(p.amt / maxAmt * 100);
+          html += "<li>" +
+            '<div class="prod-row"><span class="prod-name"><span class="rank">' + (i + 1) + '.</span> ' + p.name + "</span>" +
+            '<span class="prod-amt">' + money(p.amt) + "</span></div>" +
+            '<div class="prod-meta">' + p.qty.toLocaleString("es-MX") + " " + p.unit + " vendidos</div>" +
+            '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+            "</li>";
+        });
+        document.getElementById("prodList").innerHTML = html;
+        document.getElementById("topSub").textContent = d.topSub;
+      }
+
+      function renderFiados() {
+        var html = "", total = 0;
+        FIADOS.forEach(function (f) {
+          total += f.amt;
+          html += "<li><div>" +
+            '<div class="fiado-who">' + f.who + "</div>" +
+            '<div class="fiado-when">' + f.when + "</div></div>" +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<span class="tag tag-' + f.tag + '">' + f.tagText + "</span>" +
+            '<span class="fiado-amt">' + money(f.amt) + "</span></div></li>";
+        });
+        document.getElementById("fiadoList").innerHTML = html;
+        document.getElementById("fiadoTotal").textContent = money(total);
+      }
+
+      function renderAlertas(filter) {
+        var list = ALERTAS.filter(function (a) { return filter === "todas" || a.type === filter; });
+        if (!list.length) {
+          document.getElementById("alertList").innerHTML = '<li class="empty-msg">Sin alertas en esta categoría.</li>';
+          return;
+        }
+        var html = "";
+        list.forEach(function (a) {
+          html += '<li class="alert-item ' + (a.type === "stock" ? "a-stock" : "a-cad") + '">' +
+            '<span class="a-icon">' + (a.type === "stock" ? ICONS.box : ICONS.clock) + "</span>" +
+            "<div><b>" + a.title + "</b><p>" + a.detail + "</p></div>" +
+            '<span class="a-badge tag ' + a.badgeClass + '">' + a.badge + "</span></li>";
+        });
+        document.getElementById("alertList").innerHTML = html;
+      }
+
+      function setPeriod(key) {
+        var d = DATA[key];
+        document.getElementById("periodLabel").textContent = d.label;
+        renderKpis(d);
+        renderChart(d);
+        renderTop(d);
+        ["kpis", "chartBox", "prodList"].forEach(function (id) {
+          var el = document.getElementById(id);
+          el.classList.remove("fade");
+          void el.offsetWidth;
+          el.classList.add("fade");
+        });
+      }
+
+      var tabs = document.querySelectorAll(".tabs button");
+      tabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          tabs.forEach(function (b) { b.setAttribute("aria-selected", "false"); });
+          btn.setAttribute("aria-selected", "true");
+          setPeriod(btn.getAttribute("data-period"));
+        });
+      });
+
+      var filters = document.querySelectorAll(".alert-filters button");
+      filters.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          filters.forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+          btn.setAttribute("aria-pressed", "true");
+          renderAlertas(btn.getAttribute("data-filter"));
+        });
+      });
+
+      setPeriod("hoy");
+      renderFiados();
+      renderAlertas("todas");
+    </script>
+  </body>
+</html>
